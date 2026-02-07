@@ -37,7 +37,7 @@ cp .env.example .env
 # edit .env and set SECURITY__AUTH_TOKEN
 
 # 3) prepare persistence directory (single bind mount)
-mkdir -p inject_dir/{ccproxy,claude,opencode,logs}
+mkdir -p inject_dir/{ccs,claude,opencode,grok}
 
 # 4) build image and start container
 docker compose up -d --build
@@ -49,11 +49,13 @@ curl http://localhost:8000/health
 ## Persistence layout (inject_dir)
 All persistent state is stored under **one host directory**: `./inject_dir`
 
-We mount its subdirectories directly into the locations expected by the tools:
-- `./inject_dir/ccproxy` → `/root/.ccproxy`
-- `./inject_dir/claude` → `/root/.claude`
-- `./inject_dir/opencode` → `/root/.opencode`
-- `./inject_dir/logs` → `/tmp/ccproxy`
+We mount its subdirectories into the locations expected by the **CCS/CLIProxy stack** (note: it uses `/home/node`, not `/root`):
+- `./inject_dir/ccs` → `/home/node/.ccs`
+- `./inject_dir/claude` → `/home/node/.claude`
+- `./inject_dir/opencode` → `/home/node/.opencode`
+- `./inject_dir/grok` → `/home/node/.grok-cli`
+
+This matches the working container behavior we observed (`cli-proxy-api-plus` reading config from `/home/node/.ccs/cliproxy/config.yaml` and `auth-dir` set to `/home/node/.ccs/cliproxy/auth`).
 
 ## Ports
 - `8000` – API

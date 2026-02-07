@@ -19,11 +19,12 @@ services:
     env_file:
       - .env
     volumes:
-      # One host directory (./inject_dir) with multiple subdirectory mounts
-      - ./inject_dir/ccproxy:/root/.ccproxy
-      - ./inject_dir/claude:/root/.claude
-      - ./inject_dir/opencode:/root/.opencode
-      - ./inject_dir/logs:/tmp/ccproxy
+      # One host directory (./inject_dir) with multiple subdirectory mounts.
+      # IMPORTANT: CCS/CLIProxy expects state under /home/node (not /root).
+      - ./inject_dir/ccs:/home/node/.ccs
+      - ./inject_dir/claude:/home/node/.claude
+      - ./inject_dir/opencode:/home/node/.opencode
+      - ./inject_dir/grok:/home/node/.grok-cli
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
