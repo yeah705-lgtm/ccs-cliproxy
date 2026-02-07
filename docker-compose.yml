@@ -1,7 +1,8 @@
 services:
   ccproxy-api:
+    # Source code is expected in ./ccproxy-api (see README)
     build:
-      context: .
+      context: ./ccproxy-api
       dockerfile: Dockerfile
     container_name: ccproxy-api
     ports:
