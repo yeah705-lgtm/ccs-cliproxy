@@ -2,7 +2,7 @@ services:
   ccproxy-api:
     # Source code is expected in ./ccproxy-api (see README)
     build:
-      context: .
+      context: ./ccproxy-api
       dockerfile: Dockerfile
     container_name: ccproxy-api
     ports:
@@ -19,8 +19,11 @@ services:
     env_file:
       - .env
     volumes:
-      # Single bind mount from host. Entrypoint will symlink expected paths into this dir.
-      - ./inject_dir:/inject_dir
+      # One host directory (./inject_dir) with multiple subdirectory mounts
+      - ./inject_dir/ccproxy:/root/.ccproxy
+      - ./inject_dir/claude:/root/.claude
+      - ./inject_dir/opencode:/root/.opencode
+      - ./inject_dir/logs:/tmp/ccproxy
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
@@ -28,5 +31,3 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
-
-# No named volumes: everything persists under ./inject_dir on the host

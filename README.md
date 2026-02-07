@@ -37,7 +37,7 @@ cp .env.example .env
 # edit .env and set SECURITY__AUTH_TOKEN
 
 # 3) prepare persistence directory (single bind mount)
-mkdir -p inject_dir
+mkdir -p inject_dir/{ccproxy,claude,opencode,logs}
 
 # 4) build image and start container
 docker compose up -d --build
@@ -46,17 +46,14 @@ docker compose up -d --build
 curl http://localhost:8000/health
 ```
 
-## Persistence layout (single host dir)
-This project mounts only one host directory:
+## Persistence layout (inject_dir)
+All persistent state is stored under **one host directory**: `./inject_dir`
 
-- Host: `./inject_dir`
-- Container: `/inject_dir`
-
-On container start, the entrypoint creates symlinks so tools keep using their normal paths:
-- `/root/.ccproxy` → `/inject_dir/ccproxy`
-- `/root/.claude` → `/inject_dir/claude`
-- `/root/.opencode` → `/inject_dir/opencode`
-- `/tmp/ccproxy` → `/inject_dir/logs`
+We mount its subdirectories directly into the locations expected by the tools:
+- `./inject_dir/ccproxy` → `/root/.ccproxy`
+- `./inject_dir/claude` → `/root/.claude`
+- `./inject_dir/opencode` → `/root/.opencode`
+- `./inject_dir/logs` → `/tmp/ccproxy`
 
 ## Ports
 - `8000` – API
