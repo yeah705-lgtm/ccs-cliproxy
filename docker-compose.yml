@@ -1,0 +1,39 @@
+services:
+  ccproxy-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ccproxy-api
+    ports:
+      - "8000:8000"
+      - "1455:1455"  # OAuth callback port for Codex/Claude
+    environment:
+      - SERVER__HOST=0.0.0.0
+      - SERVER__PORT=8000
+      - LOGGING__LEVEL=${LOGGING__LEVEL:-INFO}
+      - LOGGING__FORMAT=${LOGGING__FORMAT:-json}
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - SECURITY__AUTH_TOKEN=${SECURITY__AUTH_TOKEN}
+    env_file:
+      - .env
+    volumes:
+      # OAuth credentials storage
+      - ccproxy_data:/root/.ccproxy
+      - claude_cli_data:/root/.claude
+      - opencode_data:/root/.opencode
+      # Logs
+      - ccproxy_logs:/tmp/ccproxy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  ccproxy_data:
+  claude_cli_data:
+  opencode_data:
+  ccproxy_logs:
