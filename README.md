@@ -36,12 +36,27 @@ if [ ! -d ccproxy-api ]; then git clone https://github.com/CaddyGlow/ccproxy-api
 cp .env.example .env
 # edit .env and set SECURITY__AUTH_TOKEN
 
-# 3) build image and start container
+# 3) prepare persistence directory (single bind mount)
+mkdir -p inject_dir
+
+# 4) build image and start container
 docker compose up -d --build
 
-# 4) verify
+# 5) verify
 curl http://localhost:8000/health
 ```
+
+## Persistence layout (single host dir)
+This project mounts only one host directory:
+
+- Host: `./inject_dir`
+- Container: `/inject_dir`
+
+On container start, the entrypoint creates symlinks so tools keep using their normal paths:
+- `/root/.ccproxy` → `/inject_dir/ccproxy`
+- `/root/.claude` → `/inject_dir/claude`
+- `/root/.opencode` → `/inject_dir/opencode`
+- `/tmp/ccproxy` → `/inject_dir/logs`
 
 ## Ports
 - `8000` – API
